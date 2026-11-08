@@ -1,0 +1,45 @@
+name: build-frontend
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build H700 frontend only
+    runs-on: ubuntu-24.04-arm
+    container: rust:1-bullseye
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          set -eu
+          sed -i '/bullseye-security/d' /etc/apt/sources.list
+          apt-get -o Acquire::Check-Valid-Until=false update
+          apt-get install -y --no-install-recommends cmake
+
+      - name: Build frontend for H700
+        run: |
+          set -eu
+          cargo build --profile device --target-dir target-device \
+            -p slot -p slot-services --no-default-features --features slot/device
+
+      - name: Verify executable
+        run: |
+          set -eu
+          file target-device/device/slot
+          file target-device/device/slot | grep -q aarch64
+          test -x target-device/device/slot
+
+      - name: Upload replacement frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: slot-h700-frontend-only
+          path: target-device/device/slot
+          if-no-files-found: error
+          retention-days: 14
