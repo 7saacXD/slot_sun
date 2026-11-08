@@ -30,7 +30,11 @@ jobs:
           sed -i '/bullseye-security/d' /etc/apt/sources.list
           apt-get -o Acquire::Check-Valid-Until=false update
           apt-get install -y --no-install-recommends zip cmake
-          curl -fsSL https://taskfile.dev/install.sh | sh -s -- -d -b /usr/local/bin v3.54.0
+      
+      - name: Install Task
+        uses: go-task/setup-task@v2
+        with:
+          version: 3.54.0
 
       - name: Build the tree
         run: task dist:device OUT="slot-${BUILD_NAME}"
