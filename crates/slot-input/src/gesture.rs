@@ -548,7 +548,9 @@ fn display_chord(b: Btn) -> Option<(u16, Action)> {
 
 fn chord(b: Btn) -> Option<(u16, Action)> {
     Some(match b {
-        Btn::Up | Btn::Down | Btn::Left | Btn::Right => display_chord(b)?,
+        // Pass SELECT + LEFT / RIGHT through to the game.
+        Btn::Up | Btn::Down => display_chord(b)?,
+        Btn::Left | Btn::Right => return None,
         Btn::L1 => (16, Action::LoadState),
         Btn::R1 => (32, Action::SaveState),
         Btn::L2 => (128, Action::PalettePrev),
